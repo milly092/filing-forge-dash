@@ -9,6 +9,7 @@ import ProductDetail from "./pages/ProductDetail";
 import ArticlePage from "./pages/ArticlePage";
 import About from "./pages/About";
 import DashboardPage from "./pages/dashboards/DashboardPage";
+import LoginPage from "./pages/LoginPage";
 import StartFiling from "./pages/filing/StartFiling";
 import SelectFilingType from "./pages/filing/SelectFilingType";
 import UploadDocuments from "./pages/filing/UploadDocuments";
@@ -31,6 +32,9 @@ const App = () => (
             <Route path="/articles" element={<ArticlePage />} />
             <Route path="/about" element={<About />} />
           </Route>
+
+          {/* Auth */}
+          <Route path="/login" element={<LoginPage />} />
 
           {/* Dashboards */}
           <Route path="/dashboard/:role" element={<DashboardPage />} />

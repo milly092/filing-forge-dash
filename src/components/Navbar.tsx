@@ -1,11 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
-import { FileText, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FileText, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const userRole = localStorage.getItem("userRole") || "landlord";
+  const userName = localStorage.getItem("userName") || "User";
 
   const links = [
     { to: "/", label: "Home" },
@@ -13,6 +17,13 @@ const Navbar = () => {
     { to: "/articles", label: "Resources" },
     { to: "/about", label: "About" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
+    navigate("/login");
+  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
@@ -24,7 +35,6 @@ const Navbar = () => {
           <span className="font-display text-lg font-bold text-foreground">Texas E-File</span>
         </Link>
 
-        {/* Desktop */}
         <div className="hidden items-center gap-1 md:flex">
           {links.map((l) => (
             <Link
@@ -42,14 +52,30 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/dashboard/landlord">
-            <Button variant="outline" size="sm">Dashboard</Button>
-          </Link>
-          <Link to="/filing/start">
-            <Button size="sm" className="bg-gradient-hero text-primary-foreground hover:opacity-90">
-              Start Filing
-            </Button>
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                Hi, <span className="font-medium text-foreground">{userName}</span>
+              </span>
+              <Link to={`/dashboard/${userRole}`}>
+                <Button variant="outline" size="sm">Dashboard</Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
+                <LogOut className="h-4 w-4 mr-1" /> Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="outline" size="sm">Sign In</Button>
+              </Link>
+              <Link to="/filing/start">
+                <Button size="sm" className="bg-gradient-hero text-primary-foreground hover:opacity-90">
+                  Start Filing
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -60,22 +86,28 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="border-t border-border bg-card p-4 md:hidden">
           {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link key={l.to} to={l.to} className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>
               {l.label}
             </Link>
           ))}
           <div className="mt-3 flex flex-col gap-2">
-            <Link to="/dashboard/landlord" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full">Dashboard</Button>
-            </Link>
-            <Link to="/filing/start" onClick={() => setMobileOpen(false)}>
-              <Button size="sm" className="w-full bg-gradient-hero text-primary-foreground">Start Filing</Button>
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link to={`/dashboard/${userRole}`} onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">Dashboard</Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setMobileOpen(false); }} className="w-full">Logout</Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">Sign In</Button>
+                </Link>
+                <Link to="/filing/start" onClick={() => setMobileOpen(false)}>
+                  <Button size="sm" className="w-full bg-gradient-hero text-primary-foreground">Start Filing</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
